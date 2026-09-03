@@ -55,6 +55,7 @@ jobs:
 
       - name: Build
         env:
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
           SITE_PATH_PREFIX: ${{ steps.pages.outputs.base_path }}
         run: make build
 
