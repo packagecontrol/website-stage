@@ -108,7 +108,7 @@ jobs:
           echo "::error title=GitHub Pages propagation::Deployment marker unavailable after ${elapsed} seconds; Cloudflare cache was not purged"
           exit 1
 
-      - name: Purge Cloudflare cache
+      - name: Purge volatile Cloudflare cache
         if: ${{ endsWith(steps.pages.outputs.origin, '://packages.sublimetext.io') }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -118,4 +118,4 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}'
+            --data '{"tags":["package-site-volatile"]}'

@@ -17,6 +17,8 @@ The workflow can be started manually with an optional source branch, tag, or
 commit. It also runs nightly as a fallback for crawler-data updates.
 
 After setting up all secrets and tokens, `thecrawl` will initiate deploys
-automatically whenever needed.
+automatically whenever needed. After GitHub Pages propagation, the workflow
+purges Cloudflare's `package-site-volatile` cache tag. Commit- and build-busted
+assets remain cached across deployments.
 
 [source]: https://github.com/packagecontrol/thecrawl/tree/gh-pages
