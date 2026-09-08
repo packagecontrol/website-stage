@@ -96,7 +96,7 @@ jobs:
 
             if response="$(curl --fail --silent --show-error --max-time 10 "$url")" \
               && [[ "$response" == "$MARKER" ]]; then
-              echo "::notice title=GitHub Pages propagation::New site ready after ${elapsed} seconds"
+              echo "::notice title=GitHub Pages propagation::New site ready ${elapsed} second(s) after deploy"
               exit 0
             fi
 
