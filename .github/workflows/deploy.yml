@@ -67,12 +67,46 @@ jobs:
       - name: Test
         run: make test
 
+      - name: Add deployment marker
+        id: marker
+        run: |
+          marker="$(date +%s%N | sha256sum | cut -d ' ' -f 1)"
+          printf '%s\n' "$marker" > "_site/$marker"
+          echo "value=$marker" >> "$GITHUB_OUTPUT"
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Wait for GitHub Pages propagation
+        if: ${{ endsWith(steps.pages.outputs.origin, '://packages.sublimetext.io') }}
+        env:
+          MARKER: ${{ steps.marker.outputs.value }}
+        run: |
+          started=$SECONDS
+          attempt=0
+
+          for delay in 0 1 2 4 8 16 32; do
+            sleep "$delay"
+            elapsed=$((SECONDS - started))
+            url="https://packages.sublimetext.io/${MARKER}?deployment-check=${GITHUB_RUN_ID}-${attempt}"
+
+            if response="$(curl --fail --silent --show-error --max-time 10 "$url")" \
+              && [[ "$response" == "$MARKER" ]]; then
+              echo "::notice title=GitHub Pages propagation::New site ready after ${elapsed} seconds"
+              exit 0
+            fi
+
+            echo "Deployment marker not ready after ${elapsed} seconds"
+            attempt=$((attempt + 1))
+          done
+
+          elapsed=$((SECONDS - started))
+          echo "::error title=GitHub Pages propagation::Deployment marker unavailable after ${elapsed} seconds; Cloudflare cache was not purged"
+          exit 1
 
       - name: Purge Cloudflare cache
         if: ${{ endsWith(steps.pages.outputs.origin, '://packages.sublimetext.io') }}
