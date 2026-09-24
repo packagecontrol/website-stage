@@ -19,6 +19,13 @@ commit. It also runs nightly as a fallback for crawler-data updates.
 After setting up all secrets and tokens, `thecrawl` will initiate deploys
 automatically whenever needed. After GitHub Pages propagation, the workflow
 purges Cloudflare's `package-site-volatile` cache tag. Commit- and build-busted
-assets remain cached across deployments.
+assets remain cached across deployments. A separate Actions cache restores
+`_site/data/*` and `_site/static/*` before each build. It keeps the three
+newest cached versions under each parent, leaving room for the build's version
+before uploading the site and saving the next cache snapshot. Rebuilding an
+existing static version can result in fewer than four directories. Individual
+snapshots are bounded to four versions per directory; GitHub evicts older,
+immutable cache entries under its normal cache retention policy. Older assets
+may still be served by Cloudflare until their cache entries expire.
 
 [source]: https://github.com/packagecontrol/thecrawl/tree/gh-pages

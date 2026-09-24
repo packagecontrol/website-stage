@@ -55,6 +55,29 @@ jobs:
           restore-keys: |
             readmes-rendered-
 
+      - name: Restore versioned site assets
+        uses: actions/cache@v5
+        with:
+          path: |
+            _site/data/*
+            _site/static/*
+          key: versioned-site-assets-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            versioned-site-assets-
+
+      - name: Keep three previous versions of site assets
+        run: |
+          # Leave room for the build to add a fourth version under each parent.
+          shopt -s nullglob
+          for root in _site/data _site/static; do
+            versions=("$root"/*/)
+            if ((${#versions[@]} > 3)); then
+              ls -dt -- "${versions[@]}" | tail -n +4 | while IFS= read -r old_dir; do
+                rm -rf -- "$old_dir"
+              done
+            fi
+          done
+
       - name: Build
         env:
           SITE_ORIGIN: ${{ steps.pages.outputs.origin == 'http://packages.sublimetext.io' && 'https://packages.sublimetext.io' || steps.pages.outputs.origin }}
