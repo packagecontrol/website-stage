@@ -89,7 +89,8 @@ jobs:
           started=$SECONDS
           attempt=0
 
-          for delay in 0 1 2 4 8 16 32; do
+          # Target roughly 9-10 minutes, with waits capped at 32 seconds.
+          for delay in 0 1 2 4 8 16 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32; do
             sleep "$delay"
             elapsed=$((SECONDS - started))
             url="https://packages.sublimetext.io/${MARKER}?deployment-check=${GITHUB_RUN_ID}-${attempt}"
